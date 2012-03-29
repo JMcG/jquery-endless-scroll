@@ -44,6 +44,8 @@
  *                                    accepts one argument: fire sequence
  * intervalFrequency integer          set the frequency of the scroll event checking, the larger the frequency number,
  *                                    the less memory it consumes - but also the less sensitive the event trigger becomes
+ * preFire           boolean          whether or not to fire the callback right away when the page is loaded, regardless of
+ *                                    the scroll bar or it's position. 
  *
  * Usage tips:
  *
@@ -65,7 +67,8 @@
       resetCounter:      function() { return false; },
       callback:          function() { return true; },
       ceaseFire:         function() { return false; },
-      intervalFrequency: 250
+      intervalFrequency: 250,
+      preFire: false
     };
 
     var options      = $.extend({}, defaults, options),
@@ -83,6 +86,13 @@
       scrollTarget = this;
       scrollId     = $(scrollTarget).attr("id")
     });
+
+
+    if ($(scrollTarget)[0].scrollHeight - $(scrollTarget).outerHeight() <= 0 && options.preFire == true){
+      options.preFire = false
+      fireSequence++;
+      options.callback.apply(scrollTarget, [fireSequence]);
+    }
 
     // use setInterval to improve scrolling performance: http://ejohn.org/blog/learning-from-twitter/
     setInterval(function() {
